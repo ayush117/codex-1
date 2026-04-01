@@ -18,6 +18,28 @@ export async function initDb() {
   `);
 
   await pool.query(`
+    ALTER TABLE users
+    ADD COLUMN IF NOT EXISTS password VARCHAR(255);
+  `);
+
+  const passwordHashColumn = await pool.query(
+    `
+      SELECT 1
+      FROM information_schema.columns
+      WHERE table_name = 'users' AND column_name = 'password_hash'
+      LIMIT 1;
+    `
+  );
+
+  if (passwordHashColumn.rowCount > 0) {
+    await pool.query(`
+      UPDATE users
+      SET password = password_hash
+      WHERE password IS NULL AND password_hash IS NOT NULL;
+    `);
+  }
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS applications (
       id SERIAL PRIMARY KEY,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
