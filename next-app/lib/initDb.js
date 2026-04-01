@@ -1,4 +1,5 @@
 import { pool } from './db';
+import bcrypt from 'bcryptjs';
 
 let initialized = false;
 
@@ -27,6 +28,16 @@ export async function initDb() {
       created_at TIMESTAMP NOT NULL DEFAULT NOW()
     );
   `);
+
+  const demoEmail = 'demo@bloomdesk.dev';
+  const demoPassword = 'demo1234';
+  const demoName = 'Demo User';
+
+  const existingDemoUser = await pool.query('SELECT id FROM users WHERE email = $1', [demoEmail]);
+  if (existingDemoUser.rowCount === 0) {
+    const hashedPassword = await bcrypt.hash(demoPassword, 10);
+    await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [demoName, demoEmail, hashedPassword]);
+  }
 
   initialized = true;
 }
