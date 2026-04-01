@@ -11,6 +11,7 @@ function JobsContent() {
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedLetter, setSelectedLetter] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [busyJobId, setBusyJobId] = useState(null);
   const [toast, setToast] = useState(null);
   const { user } = useAuth();
@@ -49,13 +50,25 @@ function JobsContent() {
     }
   };
 
+  const filteredJobs = jobs.filter((job) => {
+    const haystack = `${job.title} ${job.company} ${job.location} ${job.description}`.toLowerCase();
+    return haystack.includes(searchTerm.toLowerCase());
+  });
+
   return (
     <div className="container">
       <Toast toast={toast} />
       <h2>Jobs</h2>
+      <input
+        className="input"
+        placeholder="Search all jobs by title, company, location, or keyword"
+        value={searchTerm}
+        onChange={(event) => setSearchTerm(event.target.value)}
+        style={{ marginBottom: '1rem' }}
+      />
       {loading ? <p>Loading jobs...</p> : (
         <div className="grid grid-2">
-          {jobs.map((job) => (
+          {filteredJobs.map((job) => (
             <div key={job.id} className="card">
               <h3>{job.title}</h3>
               <p>{job.company} • {job.location}</p>
@@ -66,6 +79,7 @@ function JobsContent() {
               </div>
             </div>
           ))}
+          {!filteredJobs.length && <p>No jobs match your search.</p>}
         </div>
       )}
       {selectedLetter && (

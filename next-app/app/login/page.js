@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from '../../components/AuthProvider';
 import { apiFetch } from '../../lib/apiClient';
 
 const initialForm = { name: '', email: '', password: '' };
+const demoCredentials = { email: 'demo@bloomdesk.dev', password: 'demo1234' };
 
 function LoginContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -46,6 +47,21 @@ function LoginContent() {
         )}
         <input className="input" name="email" type="email" placeholder="Email" required value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} />
         <input className="input" name="password" type="password" placeholder="Password" required value={form.password} onChange={(e) => setForm((prev) => ({ ...prev, password: e.target.value }))} />
+        {isLogin && (
+          <div className="card" style={{ margin: '.5rem 0', padding: '.75rem' }}>
+            <p style={{ margin: 0, fontWeight: 600 }}>Demo credentials</p>
+            <p style={{ margin: '.25rem 0 0' }}>Email: {demoCredentials.email}</p>
+            <p style={{ margin: '.25rem 0 0' }}>Password: {demoCredentials.password}</p>
+            <button
+              type="button"
+              className="btn"
+              style={{ marginTop: '.5rem', width: '100%' }}
+              onClick={() => setForm((prev) => ({ ...prev, ...demoCredentials }))}
+            >
+              Use demo credentials
+            </button>
+          </div>
+        )}
         {error && <p className="error">{error}</p>}
         <button className="btn btn-primary" type="submit" disabled={loading} style={{ width: '100%' }}>
           {loading ? 'Please wait...' : isLogin ? 'Login' : 'Register'}
