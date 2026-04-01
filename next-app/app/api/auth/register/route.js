@@ -5,6 +5,13 @@ import { initDb } from '../../../../lib/initDb';
 
 export async function POST(request) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return Response.json(
+        { message: 'DATABASE_URL is not set. Configure the database before registering.' },
+        { status: 503 }
+      );
+    }
+
     await initDb();
     const { name, email, password } = await request.json();
 
@@ -27,6 +34,6 @@ export async function POST(request) {
     const token = signToken(user);
     return Response.json({ token, user }, { status: 201 });
   } catch (error) {
-    return Response.json({ message: 'Failed to register user' }, { status: 500 });
+    return Response.json({ message: error.message || 'Failed to register user' }, { status: 500 });
   }
 }

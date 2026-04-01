@@ -5,6 +5,13 @@ import { initDb } from '../../../../lib/initDb';
 
 export async function POST(request) {
   try {
+    if (!process.env.DATABASE_URL) {
+      return Response.json(
+        { message: 'DATABASE_URL is not set. Configure the database before logging in.' },
+        { status: 503 }
+      );
+    }
+
     await initDb();
     const { email, password } = await request.json();
 
@@ -34,6 +41,6 @@ export async function POST(request) {
       user: { id: user.id, name: user.name, email: user.email, skills: user.skills, experience: user.experience }
     });
   } catch (error) {
-    return Response.json({ message: 'Failed to login' }, { status: 500 });
+    return Response.json({ message: error.message || 'Failed to login' }, { status: 500 });
   }
 }
